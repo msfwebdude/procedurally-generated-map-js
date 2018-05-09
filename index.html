@@ -40,7 +40,7 @@
 			timesInLoop++;
 
 			var neoRoom = {};
-
+			neoRoom.id         = Math.floor(Math.random() * Math.pow(2, 32)) + Math.pow(2, 32);
 			neoRoom.width      = Math.floor(Math.random() * (maxRoomSize - minRoomSize)) + minRoomSize;
 			neoRoom.height     = Math.floor(Math.random() * (maxRoomSize - minRoomSize)) + minRoomSize;
 			neoRoom.x1         = Math.floor(Math.random() * (map.width - neoRoom.width - 1));
@@ -52,8 +52,6 @@
 			neoRoom.centerY    = Math.floor((neoRoom.y1 + neoRoom.y2) / 2);
 			neoRoom.hypotenuse = Math.floor((Math.sqrt((neoRoom.width * neoRoom.width) + (neoRoom.height * neoRoom.height))) * 1000) / 1000;
 
-
-			console.log(neoRoom);
 
 			// no intersects
 			var doesNotIntersect = true;
@@ -74,29 +72,55 @@
 
 
 			if(doesNotIntersect && doesNotMalform){
+				var previousRoom = null;
+				if(rooms.length > 0){
+					previousRoom = rooms[rooms.length -1];
+				}
 				rooms.push(neoRoom);
 				canvas.fillRect(neoRoom.x1, neoRoom.y1, neoRoom.width, neoRoom.height);
 				canvas.stroke();
-				console.log(neoRoom);
+				console.log('room added', neoRoom);
+
+				// make cooridors
+				var horCoorFunc = function (xa, xb, y){
+					canvas.beginPath();
+					canvas.strokeStyle = "#556B2F";
+					canvas.lineWidth = 12;
+					canvas.moveTo(Math.min(xa, xb) - 6, y);
+					canvas.lineTo(Math.max(xa, xb) + 6, y);
+					canvas.stroke();						
+				}
+				var verCoorFunc = function (ya, yb, x){
+					canvas.beginPath();
+					canvas.strokeStyle = "#556B2F";
+					canvas.lineWidth = 12;
+					canvas.moveTo(x, Math.min(ya, yb) - 6);
+					canvas.lineTo(x, Math.max(ya, yb) + 6);
+					canvas.stroke();	
+				}
+
+				if(previousRoom){
+					if(Math.round(Math.random())) {
+						// horizontal first
+						horCoorFunc(previousRoom.centerX, neoRoom.centerX, previousRoom.centerY);
+						verCoorFunc(previousRoom.centerY, neoRoom.centerY, neoRoom.centerX);
+
+						console.log('hor', previousRoom.centerX, neoRoom.centerX, previousRoom.centerY);
+						console.log('ver', previousRoom.centerY, neoRoom.centerY, previousRoom.centerX);
+					}
+					else {
+						// vertical first
+						verCoorFunc(previousRoom.centerY, neoRoom.centerY, neoRoom.centerX);
+						horCoorFunc(previousRoom.centerX, neoRoom.centerX, previousRoom.centerY);
+
+						console.log('ver', previousRoom.centerY, neoRoom.centerY, previousRoom.centerX);
+						console.log('hor', previousRoom.centerX, neoRoom.centerX, previousRoom.centerY);
+					}
+				}
 			}
 		}
 
-		canvas.strokeStyle = "#556B2F";
-		canvas.lineWidth = 12;
-		rooms.forEach(
-			(room, xa) => {
-				rooms.forEach(
-					(subRoom, xb) => {
-						var distance = Math.floor((Math.sqrt( Math.pow(room.centerX - subRoom.centerX, 2) + Math.pow(room.centerY - subRoom.centerY, 2) )) * 1000) / 1000;
-						if(distance < room.hypotenuse){
-							canvas.moveTo(room.centerX, room.centerY);
-							canvas.lineTo(subRoom.centerX, subRoom.centerY);
-							canvas.stroke();				
-						}
-					}
-				);				
-			}
-		);
+		
 
 
 	</script>
