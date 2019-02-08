@@ -21,3 +21,7 @@ try it out [here](http://firoved.com/github/pgm/)
 
 ## Sources
 Lots of good sources by googling, one very helpful one is [this](https://gamedevelopment.tutsplus.com/tutorials/create-a-procedurally-generated-dungeon-cave-system--gamedev-10099)
+
+
+## TODO
+* Make cooridors not too close to room walls
