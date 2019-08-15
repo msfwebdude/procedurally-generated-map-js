@@ -25,3 +25,6 @@ Lots of good sources by googling, one very helpful one is [this](https://gamedev
 
 ## TODO
 * Make cooridors not too close to room walls
+* Make rooms not too close to border of canvas
+* Make cooridors have texture as well
+* Deal with duplicate and crossing cooridors
