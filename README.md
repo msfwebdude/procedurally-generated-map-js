@@ -12,6 +12,11 @@
 * Rooms should not be larger then 50% of map size
 * Rooms should have a size ratio not greater than 1 to 5
 
+## Good cooridors
+ * not likely straight
+ * should be efficient
+ * should not connect too close to corner
+ 
 
 ## Sources
 Lots of good sources by googling, one very helpful one is [this](https://gamedevelopment.tutsplus.com/tutorials/create-a-procedurally-generated-dungeon-cave-system--gamedev-10099)

@@ -1,0 +1,23 @@
+
+
+
+
+.card {
+    width: 900px; 
+    height: 700px; 
+    margin: auto;
+}
+
+.canvas {
+    border:1px solid #000099; 
+    background-color: black;
+}
+
+.footer {
+    color: #F0F0F0;
+    font-family: 'Lucida Console', monospace;
+    font-size: 9pt;
+    margin: auto;
+    text-align: center;
+    width: 65%;
+}
