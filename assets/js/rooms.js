@@ -25,6 +25,9 @@
     var roomImg = new Image();
     roomImg.src = "./assets/img/background.png"; 
     roomImg.onload = () => { createRooms(); };
+
+    var connectionPointImg = new Image();
+    connectionPointImg.src = "./assets/img/connectionPoint.png"; 
     
     function createRooms(){
 
@@ -45,6 +48,38 @@
             neoRoom.centerX    = Math.floor((neoRoom.x1 + neoRoom.x2) / 2);
             neoRoom.centerY    = Math.floor((neoRoom.y1 + neoRoom.y2) / 2);
             neoRoom.hypotenuse = Math.floor((Math.sqrt((neoRoom.width * neoRoom.width) + (neoRoom.height * neoRoom.height))) * 1000) / 1000;
+            neoRoom.connectionPoints = [];
+
+
+            // Add connection points
+            var cp_x = 0;
+            var cp_y = 0;
+            var cp_spacing = 24;
+
+            // Top Border
+            cp_y = 0;
+            for(cp_x = 0; cp_x < neoRoom.width; cp_x += cp_spacing) {
+                neoRoom.connectionPoints.push({x: cp_x, y: cp_y});
+            }
+
+            // Left Side
+            cp_x = 0;
+            for(cp_y = 0; cp_y < neoRoom.height; cp_y += cp_spacing) {
+                neoRoom.connectionPoints.push({x: cp_x, y: cp_y});
+            }
+
+            // Bottom Border
+            cp_y = neoRoom.height;
+            for(cp_x = 0; cp_x < neoRoom.width; cp_x += cp_spacing) {
+                neoRoom.connectionPoints.push({x: cp_x, y: cp_y});
+            }
+
+            // Right Side
+            cp_x = neoRoom.width;
+            for(cp_y = 0; cp_y < neoRoom.height; cp_y += cp_spacing) {
+                neoRoom.connectionPoints.push({x: cp_x, y: cp_y});
+            }
+
 
 
             // no intersects
@@ -121,6 +156,10 @@
                 var mx = 40;
                 var my = 30;
                 canvas.drawImage(roomImg, (index * mx), (index * my), room.width, room.height, room.x1, room.y1, room.width, room.height);
+
+                room.connectionPoints.forEach(connectionPoint => {
+                    canvas.drawImage(connectionPointImg, connectionPoint.x + room.x1 - 3, connectionPoint.y + room.y1 - 3);
+                });
             }
         );			
     }
