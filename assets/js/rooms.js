@@ -1,3 +1,6 @@
+    const PATH_WIDTH = 12;
+    const PATH_COLOR = "#556B2F";
+
 
     var map = {
         width: 800,
@@ -40,6 +43,8 @@
             neoRoom.id         = Math.floor(Math.random() * Math.pow(2, 32)) + Math.pow(2, 32);
             neoRoom.width      = Math.floor(Math.random() * (maxRoomSize - minRoomSize)) + minRoomSize;
             neoRoom.height     = Math.floor(Math.random() * (maxRoomSize - minRoomSize)) + minRoomSize;
+            neoRoom.midWidth   = neoRoom.width / 2;
+            neoRoom.midHeight  = neoRoom.height / 2;
             neoRoom.x1         = Math.floor(Math.random() * (map.width - neoRoom.width - 1));
             neoRoom.y1         = Math.floor(Math.random() * (map.height - neoRoom.height - 1));
             neoRoom.x2         = neoRoom.x1 + neoRoom.width;
@@ -54,30 +59,35 @@
             // Add connection points
             var cp_x = 0;
             var cp_y = 0;
-            var cp_spacing = 24;
+            var cp_weight = 0;
+            var cp_spacing = PATH_WIDTH * 2;
 
             // Top Border
             cp_y = 0;
             for(cp_x = 0; cp_x < neoRoom.width; cp_x += cp_spacing) {
-                neoRoom.connectionPoints.push({x: cp_x, y: cp_y});
+                cp_weight = 1 - (Math.abs(cp_x - neoRoom.midWidth) / neoRoom.midWidth);
+                neoRoom.connectionPoints.push({x: cp_x, y: cp_y, w: cp_weight});
             }
 
             // Left Side
             cp_x = 0;
             for(cp_y = 0; cp_y < neoRoom.height; cp_y += cp_spacing) {
-                neoRoom.connectionPoints.push({x: cp_x, y: cp_y});
+                cp_weight = 1 - (Math.abs(cp_y - neoRoom.midHeight) / neoRoom.midHeight);
+                neoRoom.connectionPoints.push({x: cp_x, y: cp_y, w: cp_weight});
             }
 
             // Bottom Border
             cp_y = neoRoom.height;
             for(cp_x = 0; cp_x < neoRoom.width; cp_x += cp_spacing) {
-                neoRoom.connectionPoints.push({x: cp_x, y: cp_y});
+                cp_weight = 1 - (Math.abs(cp_x - neoRoom.midWidth) / neoRoom.midWidth);
+                neoRoom.connectionPoints.push({x: cp_x, y: cp_y, w: cp_weight});
             }
 
             // Right Side
             cp_x = neoRoom.width;
             for(cp_y = 0; cp_y < neoRoom.height; cp_y += cp_spacing) {
-                neoRoom.connectionPoints.push({x: cp_x, y: cp_y});
+                cp_weight = 1 - (Math.abs(cp_y - neoRoom.midHeight) / neoRoom.midHeight);
+                neoRoom.connectionPoints.push({x: cp_x, y: cp_y, w: cp_weight});
             }
 
 
@@ -96,7 +106,6 @@
                 }
             );
 
-            // TODO check for too close to border
 
             // no too wide or too narrow rooms
             var doesNotMalform = (neoRoom.aspect > 0.2);
@@ -112,41 +121,61 @@
                 canvas.stroke();
                 console.log('room added', neoRoom);
 
-                // make cooridors
-                var horCoorFunc = function (xa, xb, y){
+                // helper functions
+                var drawPath = (ax, ay, bx, by) => {
                     canvas.beginPath();
-                    canvas.strokeStyle = "#556B2F";
-                    canvas.lineWidth = 12;
-                    canvas.moveTo(Math.min(xa, xb) - 6, y);
-                    canvas.lineTo(Math.max(xa, xb) + 6, y);
-                    canvas.stroke();						
+                    canvas.strokeStyle = PATH_COLOR;
+                    canvas.lineWidth   = PATH_WIDTH;
+                    canvas.moveTo(ax, ay);
+                    canvas.lineTo(bx, by);
+                    canvas.stroke();
+
                 }
-                var verCoorFunc = function (ya, yb, x){
-                    canvas.beginPath();
-                    canvas.strokeStyle = "#556B2F";
-                    canvas.lineWidth = 12;
-                    canvas.moveTo(x, Math.min(ya, yb) - 6);
-                    canvas.lineTo(x, Math.max(ya, yb) + 6);
-                    canvas.stroke();	
+
+                var getDistance = (ax, ay, bx, by) => {
+                    var delta_x = ax - bx;
+                    var delta_y = ay - by;
+                    var sum_xny = Math.pow(delta_x, 2) + Math.pow(delta_y, 2);
+                    return Math.sqrt(sum_xny);
                 }
 
                 if(previousRoom){
-                    if(Math.round(Math.random())) {
-                        // horizontal first
-                        horCoorFunc(previousRoom.centerX, neoRoom.centerX, previousRoom.centerY);
-                        verCoorFunc(previousRoom.centerY, neoRoom.centerY, neoRoom.centerX);
 
-                        console.log('hor', previousRoom.centerX, neoRoom.centerX, previousRoom.centerY);
-                        console.log('ver', previousRoom.centerY, neoRoom.centerY, previousRoom.centerX);
-                    }
-                    else {
-                        // vertical first
-                        verCoorFunc(previousRoom.centerY, neoRoom.centerY, neoRoom.centerX);
-                        horCoorFunc(previousRoom.centerX, neoRoom.centerX, previousRoom.centerY);
+                    var possibleConnects = [];
 
-                        console.log('ver', previousRoom.centerY, neoRoom.centerY, previousRoom.centerX);
-                        console.log('hor', previousRoom.centerX, neoRoom.centerX, previousRoom.centerY);
-                    }
+                    neoRoom.connectionPoints.forEach(
+                        neoRoomConnectionPoint => {
+                            previousRoom.connectionPoints.forEach(
+                                previousRoomConnectionPoint => {
+
+                                    var ax = neoRoomConnectionPoint.x + neoRoom.x1;
+                                    var ay = neoRoomConnectionPoint.y + neoRoom.y1;
+                                    var bx = previousRoomConnectionPoint.x + previousRoom.x1;
+                                    var by = previousRoomConnectionPoint.y + previousRoom.y1;
+                                    var distance     = getDistance(ax, ay, bx, by);
+                                    var meanWeight   = ((1 - neoRoomConnectionPoint.w) + (1 - previousRoomConnectionPoint.w)) / 2;
+                                    var overallScore = distance * meanWeight;
+
+                                    var possibleConnect = {
+                                        ax,
+                                        ay,
+                                        bx,
+                                        by,
+                                        distance,
+                                        overallScore
+                                    };
+                                    
+                                    possibleConnects.push(possibleConnect);
+                                }
+                            );
+                        }
+                    );
+
+                    possibleConnects.sort((a, b) => { return a.overallScore - b.overallScore });
+
+                    var connection = possibleConnects[0];
+
+                    drawPath(connection.ax, connection.ay, connection.bx, connection.by);
                 }
             }
         }
