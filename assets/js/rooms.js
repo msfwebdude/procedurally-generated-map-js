@@ -130,14 +130,31 @@
                     canvas.lineTo(bx, by);
                     canvas.stroke();
 
-                }
+                };
 
                 var getDistance = (ax, ay, bx, by) => {
                     var delta_x = ax - bx;
                     var delta_y = ay - by;
                     var sum_xny = Math.pow(delta_x, 2) + Math.pow(delta_y, 2);
                     return Math.sqrt(sum_xny);
-                }
+                };
+
+                var getAllPointBetweenPoints = (p1x, p1y, p2x, p2y) => {
+                    var points = [];
+                    var distanceBetweenPoints = getDistance(p1x, p1y, p2x, p2y);
+                    for (let distance = 0; distance <= distanceBetweenPoints; distance++) {
+                        var distanceRatio = distance / distanceBetweenPoints;
+                        points.push(
+                            {
+                                X: p1x + distanceRatio * (p2x - p1x),
+                                Y: p1y + distanceRatio * (p2y - p1y),
+                            }
+                        );
+                    }
+                    return points;
+                };
+
+
 
                 if(previousRoom){
 
@@ -178,7 +195,8 @@
                     possibleConnects.forEach(
                         possibleConnect => {
                             // check line point intersects
-
+                            var linePoints = getAllPointBetweenPoints(possibleConnect.ax, possibleConnect.ay, possibleConnect.bx, possibleConnect.by);
+                            
                         }
                     );
                     
