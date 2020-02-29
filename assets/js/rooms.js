@@ -173,9 +173,22 @@
 
                     possibleConnects.sort((a, b) => { return a.overallScore - b.overallScore });
 
-                    var connection = possibleConnects[0];
+                    var connection = null;
 
-                    drawPath(connection.ax, connection.ay, connection.bx, connection.by);
+                    possibleConnects.forEach(
+                        possibleConnect => {
+                            // check line point intersects
+
+                        }
+                    );
+                    
+                    // remove later when above intersect check work >>>
+                    connection = possibleConnects[0];
+                    // <<<
+
+                    if(connection){
+                        drawPath(connection.ax, connection.ay, connection.bx, connection.by);
+                    }
                 }
             }
         }
